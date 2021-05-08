@@ -21,6 +21,9 @@ pub trait Identity {
     /// Although not enforced, it is recommended that this be an ASCII string.
     fn firmware_version(&self) -> &[u8; 32];
 
+    /// Returns a string indicating the Vendor firmware version at the specified slot.
+    fn vendor_firmware_version(&self, _slot: u8) -> Option<&[u8; 32]> { None }
+
     /// Returns the "unique device identity" for the device. This is a binary
     /// value of unspecified format.
     fn unique_device_identity(&self) -> &[u8];

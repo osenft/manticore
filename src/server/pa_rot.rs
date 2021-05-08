@@ -78,16 +78,21 @@ where
     ) -> Result<(), Error> {
         let result = Handler::<&mut Self>::new()
             .handle::<protocol::FirmwareVersion, _>(|zelf, req| {
-                if req.index != 0 {
-                    return Err(protocol::Error {
-                        code: protocol::ErrorCode::Unspecified,
-                        data: [0; 4],
-                    });
+                if req.index == 0 {
+                    Ok(protocol::firmware_version::FirmwareVersionResponse {
+                        version: zelf.opts.identity.firmware_version(),
+                    })
+                } else {
+                    match zelf.opts.identity.vendor_firmware_version(req.index) {
+                        Some(version) => Ok(protocol::firmware_version::FirmwareVersionResponse {
+                            version: version,
+                        }),
+                        None => Err(protocol::Error {
+                            code: protocol::ErrorCode::Unspecified,
+                            data: [0; 4],
+                        })
+                    }
                 }
-
-                Ok(protocol::firmware_version::FirmwareVersionResponse {
-                    version: zelf.opts.identity.firmware_version(),
-                })
             })
             .handle::<protocol::DeviceCapabilities, _>(|zelf, req| {
                 use protocol::capabilities::*;
